@@ -1,3 +1,21 @@
+<?php
+include 'App/blagues.php';
+$bdd =  bdd();
+$AllCategorie = AllCategories($bdd);
+if(isset($_POST['addcategorie'])){
+    $donnees = ViewCategorie($bdd, $_POST['addcategorie']);
+    if($donnees){
+        $message = '<div class="alert alert-warning mt-3" role="alert">La catégorie <em><strong>'.$_POST['addcategorie'].'</strong></em> existe déja dans nore base de données!</div>';
+    }else{
+        addCategorie($bdd, $_POST['addcategorie']);
+        $message = '<div class="alert alert-success mt-3" role="alert">La catégorie <em><strong>'.$_POST['addcategorie'].'</strong></em> à bien éte enregistrer dans nore base de données!</div>';
+    }
+}
+if(isset($_POST['content'])){
+    addBlague($bdd, $_POST['categorie'], $_POST['content'], $_POST['pseudo']);
+    $message = '<div class="alert alert-success mt-3" role="alert">La Blagues à bien été enregistré dans la catégorie <em><strong>'.$_POST['addcategorie'].'</strong></em> !</div>';
+}
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -18,45 +36,15 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=1">Belges</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=2">Blondes</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=3">Femmes</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=4">Hommes</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=5">Ta mere</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=6">M. & Mme</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=7">Toto</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=8">Contrepetries</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=9">Profs</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=10">Informatique</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=11">Vieux</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=12">Metiers & Fonction.</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.php?categorie=13">Charades</a>
-                </li>
+                <?php
+                foreach ($AllCategorie as $Categorie) {
+                    ?>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index.php?categorie=<?php echo $Categorie->idCat;?>"><?php echo $Categorie->nameCat;?></a>
+                    </li>
+                    <?php
+                }
+                ?>
                 <li class="nav-item active">
                     <a class="nav-link" href="add-blague.php">Ajouter blague</a>
                 </li>
@@ -71,6 +59,9 @@
     </nav>
 </header>
 <main class="container mb-5">
+    <?php
+    if(isset($message)){ echo $message;}
+    ?>
     <section>
         <div class="card my-2">
             <h5 class="card-header">Formulaire d'ajout de catégorie </h5>
@@ -94,21 +85,14 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Catégorie</span>
                         </div>
-                        <select class="form-control" name="categorie">
+                        <select class="form-control" name="categorie" required>
                             <option>-- Choisissez --</option>
-                            <option value="1"   >Belges</option>";
-                            <option value="2"   >Blondes</option>";
-                            <option value="3"   >Femmes</option>";
-                            <option value="4"   >Hommes</option>";
-                            <option value="5"   >Ta mere</option>";
-                            <option value="6"   >M. & Mme</option>";
-                            <option value="7"   >Toto</option>";
-                            <option value="8"   >Contrepetries</option>";
-                            <option value="9"   >Profs</option>";
-                            <option value="10"   >Informatique</option>";
-                            <option value="11"   >Vieux</option>";
-                            <option value="12"   >Metiers & Fonction.</option>";
-                            <option value="13" selected  >Charades</option>";
+                            <?php
+                            foreach ($AllCategorie as $Categorie){ ?>
+                                <option value="<?php echo $Categorie->idCat;?>"><?php echo $Categorie->nameCat;?></option>;
+                                <?php
+                            }
+                            ?>
                         </select>
                     </div>
                     <div class="input-group mb-3">
@@ -121,7 +105,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Pseudo</span>
                         </div>
-                        <input type="text" class="form-control" name="pseudo" placeholder="Pseudo" required value="Blond113">
+                        <input type="text" class="form-control" name="pseudo" placeholder="Pseudo" required>
                     </div>
                     <input type="submit" class="btn btn-success" value="Enregistrer">
                 </form>
